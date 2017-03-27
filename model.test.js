@@ -210,7 +210,7 @@ describe('server/lib/model', () => {
 
     context('._constructQuery()', () => {
 
-      it.only('should convert field names to snake_case', () => {
+      it('should convert field names to snake_case', () => {
         const query = User._constructQuery({
           where: { createdAt: { equals: 'value' } },
           order: { createdAt: 'desc' },
