@@ -1,0 +1,48 @@
+{
+  "name": "simple-sql-model",
+  "version": "0.1.0",
+  "description": "Simple model wrapper around a `sql` table.",
+  "main": "model.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha '**/*.test.js'",
+    "watch-test": "npm test -- --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/danawoodman/simple-sql-model.git"
+  },
+  "keywords": [
+    "sql",
+    "model",
+    "class",
+    "util",
+    "orm",
+    "postgres",
+    "postgresql",
+    "mysql",
+    "oracle",
+    "schema"
+  ],
+  "author": "Dana Woodman <dana@danawoodman.com> (http://danawoodman.com/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/danawoodman/simple-sql-model/issues"
+  },
+  "homepage": "https://github.com/danawoodman/simple-sql-model#readme",
+  "devDependencies": {
+    "chai": "3.5.0",
+    "mocha": "3.2.0",
+    "pg-promise": "5.6.4",
+    "sinon": "2.1.0"
+  },
+  "dependencies": {
+    "lodash": "4.17.4",
+    "sql": "0.74.0"
+  },
+  "engines": {
+    "node": "7.1.x"
+  }
+}

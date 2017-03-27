@@ -1,0 +1,6 @@
+--recursive
+--colors
+--bail
+--ui bdd
+--reporter spec
+--require test/helper

@@ -1,0 +1,5 @@
+dist/
+logs/
+tmp/
+node_modules/
+**/*.test.js
