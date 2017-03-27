@@ -208,7 +208,18 @@ describe('server/lib/model', () => {
       })
     })
 
-    //context('._constructQuery()', () => {
+    context('._constructQuery()', () => {
+
+      it.only('should convert field names to snake_case', () => {
+        const query = User._constructQuery({
+          where: { createdAt: { equals: 'value' } },
+          order: { createdAt: 'desc' },
+        })
+        expect(query.toQuery()).to.deep.equal({
+          text: 'SELECT "users".* FROM "users" WHERE ("users"."created_at" = $1) ORDER BY "users"."created_at" DESC',
+          values: [ 'value' ],
+        })
+      })
 
       //xit('should convert string IDs to numbers', () => {
 
@@ -218,15 +229,16 @@ describe('server/lib/model', () => {
 
       //})
 
-    //})
+    })
 
   })
 
   context('instance methods', () => {
 
     it('should stringify name of model by default', () => {
-      expect(String(new User())).to.equal('User')
+      expect(String(new User({ name: 'John' }))).to.equal('User')
     })
+
   })
 
 })

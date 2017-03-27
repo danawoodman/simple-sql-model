@@ -18,6 +18,12 @@ function decamelizeObject(fields) {
 module.exports = class Model {
 
 
+  constructor(fields) {
+    const attrs = this.constructor._toModelFromDb(fields)
+    Object.assign(this, attrs)
+  }
+
+
   //---------------------------------------------
   // Class methods
   //---------------------------------------------
@@ -33,12 +39,12 @@ module.exports = class Model {
     this.table = schema.table
     this.table = sql.define({
       name: schema.table,
-      columns: schema.columns,
+      columns: _.map(schema.columns, (column) => _.snakeCase(column)),
     })
   }
 
   static async create(fields) {
-    const values = this.toDbFromModel(fields)
+    const values = this._toDbFromModel(fields)
     const query = this.table.insert(values).returning()
     const result = await this.connection.query(query.toQuery())
     return new this(result[0])
@@ -59,7 +65,7 @@ module.exports = class Model {
   }
 
   static async update(idOrQuery, fields) {
-    const changes = this.toDbFromModel(fields)
+    const changes = this._toDbFromModel(fields)
     const start = this.table.update(changes)
     const query = this._constructQuery(idOrQuery, start)
     query.returning()
@@ -87,6 +93,15 @@ module.exports = class Model {
     }
   }
 
+  static toString() {
+    return this.name
+  }
+
+
+  //---------------------------------------------
+  // Private class methods
+  //---------------------------------------------
+
   static _constructQuery(search, startingQuery) {
 
     // Convert a string version of the ID to a number
@@ -110,7 +125,7 @@ module.exports = class Model {
     if (search && search.where) {
       _.map(search.where, (filters, field) => {
         _.map(filters, (value, filter) => {
-          query.where(this.table[field][filter](value))
+          query.where(this.table[_.snakeCase(field)][filter](value))
         })
       })
     }
@@ -119,7 +134,7 @@ module.exports = class Model {
     if (search && search.order) {
       _.map(search.order, (sort, field) => {
         // TODO: Support "and/or" type queries
-        query.order(this.table[field][sort])
+        query.order(this.table[_.snakeCase(field)][sort])
       })
     }
 
@@ -133,13 +148,9 @@ module.exports = class Model {
     return query
   }
 
-  static toDbFromModel(model) { return decamelizeObject(model) }
+  static _toDbFromModel(model) { return decamelizeObject(model) }
 
-  static toModelFromDb(fields) { return camelizeObject(fields) }
-
-  static toString() {
-    return this.name
-  }
+  static _toModelFromDb(fields) { return camelizeObject(fields) }
 
   static _debug() {
     if (this.debug) console.log(...arguments)
@@ -149,11 +160,6 @@ module.exports = class Model {
   //---------------------------------------------
   // Instance methods
   //---------------------------------------------
-
-  constructor(fields) {
-    const attrs = this.constructor.toModelFromDb(fields)
-    Object.assign(this, attrs)
-  }
 
   toString() {
     return this.constructor.name
