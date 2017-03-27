@@ -61,21 +61,21 @@ User.configure({
   ]
 })
 
-# create
+// create
 await User.create({
   name: 'John Smith',
   email: 'john@google.com',
   isAdmin: false,
 })
 
-# findOne
+// findOne
 await User.findOne(1)
 await User.findOne({ where: { name: { equals: 'John' } } })
 
-# findMany
+// findMany
 await User.findMany({ where: { name: { equals: 'John' } } })
 
-# Create a new model instance
+// Create a new model instance
 const user = new User({ name: 'John' })
 console.log(user.toString()) //=> 'John'
 console.log(String(user)) //=> 'John'
