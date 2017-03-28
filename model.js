@@ -97,6 +97,15 @@ module.exports = class Model {
   // Instance methods
   //---------------------------------------------
 
+  save() {
+    return this.constructor
+      .create(this)
+      .then((row) => {
+        Object.assign(this, row)
+        return row
+      })
+  }
+
   update(fields) {
     return this.constructor
       .update(this.id, fields)
@@ -107,8 +116,7 @@ module.exports = class Model {
   }
 
   destroy() {
-    return this.constructor
-      .destroy(this.id)
+    return this.constructor.destroy(this.id)
   }
 
   toString() {

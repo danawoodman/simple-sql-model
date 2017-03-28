@@ -246,6 +246,19 @@ describe('server/lib/model', () => {
       expect(String(new User({ name: 'John' }))).to.equal('User')
     })
 
+    context('.save()', () => {
+
+      it('should create and return model', async () => {
+        expect(await User.findMany()).to.have.length(0)
+        const user = new User({ name: 'Fred' })
+        await user.save()
+        const users = await User.findMany()
+        expect(users).to.have.length(1)
+        expect(users[0]).to.deep.equal(user)
+      })
+
+    })
+
     context('.update()', () => {
 
       it('should update the user', async () => {

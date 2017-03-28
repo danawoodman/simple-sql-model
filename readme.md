@@ -27,8 +27,68 @@ yarn add simple-sql-model
 
 ## Usage
 
+A simple example:
+
 ```js
+const connection = require('./db-connection') // some SQL db connection...
 const Model = require('simple-sql-model')
+
+class User extends Model {}
+
+// Setup the database connection for the model.
+User.configure({
+
+  // The DB connection to use. Must provide a Promise
+  // returning `query` function to be compatible.
+  connection: connection,
+
+  table: 'users',
+
+  // Define 
+  columns: [
+    'id',
+    'name',
+  ],
+})
+
+// Create user
+const user = await User.create({ name: 'John' }) // save directly
+const user2 = new User({ name: 'Bill' }) // initialize model instance
+await user2.save() // save model instance to DB
+
+// Find users
+await User.findOne(user.id)
+await User.findOne({
+  where: { name: { equals: 'John' } },
+}) // returns first match from query
+await User.findMany() // returns all users
+await User.findMany({
+  where: { name: { equals: 'John' } },
+}) // returns array of matches
+
+// Count number of users
+await User.count()
+await User.count({
+  where: { name: { ilike: '%j%' } },
+}) // includes j in name (case-insensitive)
+
+// Destroy the user
+await user.destroy()
+await User.destroy(user.id)
+await User.destroy({ where: { name: { equals: 'John' } } })
+```
+
+A more complete example:
+
+```js
+const Connect = require('pg-promise')()
+const Model = require('simple-sql-model')
+
+// Connect to a Postgres DB
+const connection = Connect({
+  database: 'my-db',
+  user: 'myuser',
+})
 
 class User extends Model {
 
@@ -51,9 +111,8 @@ class User extends Model {
 }
 
 User.configure({
+  connection: connection,
   table: 'users',
-
-  // Define 
   columns: [
     'id',
     'name',
@@ -76,7 +135,7 @@ await User.findOne({ where: { name: { equals: 'John' } } })
 // findMany
 await User.findMany({ where: { name: { equals: 'John' } } })
 
-// Create a new model instance
+// Create a new model instance (not in DB)
 const user = new User({ name: 'John' })
 console.log(user.toString()) //=> 'John'
 console.log(String(user)) //=> 'John'
@@ -108,6 +167,20 @@ Checkout [this page](https://github.com/brianc/node-sql/blob/5ec7827cf637a4fe6b9
 
 ### Class Methods
 
+
+#### `Model.configure({ connection, columns, table })`
+
+This must be called to connect your model to a SQL database.
+
+##### Returns
+
+Nothing
+
+##### Arguments
+
+- `connection` - A connection to a SQL database that provides a Promise aware `.query()` method. This `query` method is what `simple-sql-model` will pass SQL strings to. It expects the results to be return directly (eg a object representing a row or an array representing a set of rows).
+- `columns` - An `Array` of table columns that map to your schema. They can be in snake_case or camelCase as we always convert to snake_case when converting queries to SQL.
+- `table` - The name of the table in your database to connect to.
 
 #### `Model.create(fields)`
 
@@ -240,6 +313,11 @@ npm test # or npm run watch-test
 
 
 ## Changelog
+
+### v0.3.0
+
+- Add `model.save()` method to create a row from an unsaved model instance.
+- Update readme.
 
 ### v0.2.1
 
