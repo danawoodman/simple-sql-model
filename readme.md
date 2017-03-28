@@ -221,6 +221,10 @@ npm test # or npm run watch-test
 
 ## Changelog
 
+### v0.2.0
+
+- Fix camelCasing of queries to be consistent
+
 ### v0.1.0
 
 Initial release. Implement `create`, `update`, `destroy`, `findOne`, `findMany`, and `count`.
