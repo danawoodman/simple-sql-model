@@ -207,7 +207,7 @@ This must be called to connect your model to a SQL database.
 
 Creates a new row in the DB with the given fields and returns a new model instance.
 
-- **Returns:**  A new `Model` instance.
+- **Returns:**  Promise for a new `Model` instance.
 - **Arguments:**
   - `fields` - The fields to create the new model from. Must match the schema.
 
@@ -216,7 +216,7 @@ Creates a new row in the DB with the given fields and returns a new model instan
 
 Finds one (or no) rows based on the given ID or query.
 
-- **Returns:** A `Model` instance of the matched row or `null`.
+- **Returns:** Promise for a `Model` instance of the matched row or `null`.
 - **Arguments:**
   - `idOrQuery` - An ID (`Number` or `String`) or query object to find the row in the table.
 
@@ -225,7 +225,7 @@ Finds one (or no) rows based on the given ID or query.
 
 Finds one or more rows based on the given ID or query.
 
-- **Returns:** A array of `Model` instances of the matched row or an empty array (`[]`).
+- **Returns:** Promise for an `Array` of `Model` instances of the matched row or an empty array (`[]`).
 - **Arguments:**  
   - `idOrQuery` - An ID (`Number` or `String`) or query object to find the row in the table.
 
@@ -234,7 +234,7 @@ Finds one or more rows based on the given ID or query.
 
 Updates a row in the table with given changes based on an ID or query.
 
-- **Returns:** An updated `Model` instance.
+- **Returns:** Promise for an updated `Model` instance.
 - **Arguments:**  
   - `idOrQuery` - An ID (`Number` or `String`) or query object to find the row in the table.
   - `changes` - An `Object` of the changes to the row. This can be one, some or all of the columns in the given table to change (eg partial or full updates are possible).
@@ -244,7 +244,7 @@ Updates a row in the table with given changes based on an ID or query.
 
 Deletes a row from the table based on an ID or query.
 
-- **Returns:** `undefined`
+- **Returns:** Promise returning `undefined`
 - **Arguments:**  
   - `idOrQuery` - An ID (`Number` or `String`) or query object to find the row to delete in the table.
 
@@ -253,7 +253,7 @@ Deletes a row from the table based on an ID or query.
 
 Count up the number of matching records in the table. If an optional query is passed in, count the number of rows that match the query.
 
-- **Returns:** Count (`Number`) of matching rows or `0`.
+- **Returns:** Promise returning a count (`Number`) of matching rows or `0`.
 - **Arguments:**  
   - `query` (optional) - The query to use to limited the returned rows. If no query provided, it returns total amount of rows for this table.
 
