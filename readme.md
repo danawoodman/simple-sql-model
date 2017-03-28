@@ -314,17 +314,17 @@ npm test # or npm run watch-test
 
 ## Changelog
 
-### v0.3.0
+### v0.4.0
 
 - Add `model.save()` method to create a row from an unsaved model instance.
 - Update readme.
 
-### v0.2.1
+### v0.3.1
 
 - Change Node dependency version
 - Update readme
 
-### v0.2.0
+### v0.3.0
 
 - Allow `model.update()` and `model.destroy()` instance methods
 - Remove dependency on `async`/`await` support
