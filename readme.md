@@ -33,7 +33,9 @@ A simple example:
 const connection = require('./db-connection') // some SQL db connection...
 const Model = require('simple-sql-model')
 
-class User extends Model {}
+class User extends Model {
+  // Add specific class or instance methods for this model here...
+}
 
 // Setup the database connection for the model.
 User.configure({
@@ -44,7 +46,7 @@ User.configure({
 
   table: 'users',
 
-  // Define 
+  // Define columns in the table
   columns: [
     'id',
     'name',
@@ -55,6 +57,10 @@ User.configure({
 const user = await User.create({ name: 'John' }) // save directly
 const user2 = new User({ name: 'Bill' }) // initialize model instance
 await user2.save() // save model instance to DB
+
+// Update user
+await user.update({ name: 'Johnny' })
+await User.update(user.id, { name: 'Johnny' })
 
 // Find users
 await User.findOne(user.id)
