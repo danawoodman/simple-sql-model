@@ -306,7 +306,7 @@ npm test # or npm run watch-test
 
 ### v0.4.2
 
-- **[CHANGE]** Change `Model.schema` to `Model.columns`.
+- **[BREAKING]:** Change `Model.schema` to `Model.columns`.
 
 ### v0.4.1
 
