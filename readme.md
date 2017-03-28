@@ -9,7 +9,8 @@ This provides a bunch of convenience methods to create simple DB models quickly 
 
 - This is considered somewhat in flux, don't use in production unless you're sure.
 - This is stupid simple, it's just a dumb wrapper around the awesome `sql` model; you should check the source in `model.js` and the tests in `model.test.js` to see what's going on. I swear, it's *really simple*.
-- This depends on new ES6 features like `Class` and `async`/`await` so use Node 7+ or transpile.
+- This depends on new ES6 features like `Class` so use Node 4.8.1 or above or transpile.
+  - Test require the use of `async`/`await` so please use Node 7.1.x or above when running tests.
 - This isn't feature complete but it offers hooks to extend so you're not stuck with it's functionality. Pull requests welcome though!
 
 
@@ -220,6 +221,17 @@ npm test # or npm run watch-test
 
 
 ## Changelog
+
+### v0.2.1
+
+- Change Node dependency version
+- Update readme
+
+### v0.2.0
+
+- Allow `model.update()` and `model.destroy()` instance methods
+- Remove dependency on `async`/`await` support
+- DRY things up a bit
 
 ### v0.2.0
 
