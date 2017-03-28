@@ -78,7 +78,8 @@ await User.findOne(user.id)
 await User.findOne({
   where: { name: { equals: 'John' } },
 })
-await User.findMany() // returns all users
+// returns all users
+await User.findMany()
 // returns array of matches
 await User.findMany({
   where: { name: { equals: 'John' } },
