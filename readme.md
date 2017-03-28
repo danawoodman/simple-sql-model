@@ -66,6 +66,14 @@ class User extends Model {
     // do some magic here...
   }
 
+  // before/after hooks:
+  beforeCreate(fields) {}
+  afterCreate(model, fields) {}
+  beforeUpdate(model, fields) {}
+  afterUpdate(model, fields) {}
+  beforeDestroy(model) {}
+  afterDestroy() {}
+
 }
 
 // Setup the database connection for the model.
@@ -212,6 +220,25 @@ Creates a new row in the DB with the given fields and returns a new model instan
   - `fields` - The fields to create the new model from. Must match the schema.
 
 
+#### `Model.beforeCreate(fields)`
+
+If defined in child class, gets called before a `Model` is created.
+
+- **Returns:**  Promise for fields that were passed to `Model.create()`
+- **Arguments:**
+  - `fields` - The fields passed to `Model.create()`
+
+
+#### `Model.afterCreate(model, fields)`
+
+If defined in child class, gets called after a `Model` is created.
+
+- **Returns:**  Promise for fields and model that were created by `Model.create()`
+- **Arguments:**
+  - `model` - The `Model` instance of the created row.
+  - `fields` - The fields passed to `Model.create()`
+
+
 #### `Model.findOne(idOrQuery)`
 
 Finds one (or no) rows based on the given ID or query.
@@ -240,6 +267,26 @@ Updates a row in the table with given changes based on an ID or query.
   - `changes` - An `Object` of the changes to the row. This can be one, some or all of the columns in the given table to change (eg partial or full updates are possible).
 
 
+#### `Model.beforeUpdate(model, fields)`
+
+If defined in child class, gets called before a `Model` is updated.
+
+- **Returns:**  Promise for `Model` instance before modification and the fields that were passed to `Model.update()`
+- **Arguments:**
+  - `model` - The `Model` instance before updating.
+  - `fields` - The fields passed to `Model.update()`
+
+
+#### `Model.afterUpdate(model, fields)`
+
+If defined in child class, gets called after a `Model` is updated.
+
+- **Returns:**  Promise for fields and model that were updated by `Model.update()`
+- **Arguments:**
+  - `model` - The `Model` instance of the updated row.
+  - `fields` - The fields passed to `Model.update()`
+
+
 #### `Model.destroy(idOrQuery)`
 
 Deletes a row from the table based on an ID or query.
@@ -247,6 +294,22 @@ Deletes a row from the table based on an ID or query.
 - **Returns:** Promise returning `undefined`
 - **Arguments:**  
   - `idOrQuery` - An ID (`Number` or `String`) or query object to find the row to delete in the table.
+
+
+#### `Model.beforeDestroy(model)`
+
+If defined in child class, gets called before a `Model` is destroyed.
+
+- **Returns:**  Promise for `Model` instance before destroying
+- **Arguments:**
+  - `model` - The `Model` instance of the updated row.
+
+
+#### `Model.afterDestroy()`
+
+If defined in child class, gets called after a `Model` is destroyed.
+
+- **Returns:**  Promise for `undefined`
 
 
 #### `Model.count([query])`
@@ -309,6 +372,10 @@ npm test # or npm run watch-test
 
 
 ## Changelog
+
+### v0.5.0
+
+- Add hooks for lifecycle methods `Model.beforeCreate`, `Model.afterCreate`, `Model.beforeUpdate`, `Model.afterUpdate`, `Model.beforeDestroy`, and `Model.afterDestroy`.
 
 ### v0.4.2
 

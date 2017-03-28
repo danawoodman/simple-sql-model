@@ -46,7 +46,16 @@ module.exports = class Model {
   static create(fields) {
     const values = this._toDbFromModel(fields)
     const query = this.table.insert(values).returning()
+    if (_.isFunction(this.beforeCreate)) {
+      this.beforeCreate(fields)
+    }
     return this._returnOne(query)
+      .then((model) => {
+        if (_.isFunction(this.afterCreate)) {
+          this.afterCreate(model, fields)
+        }
+        return model
+      })
   }
 
   static findOne(idOrQuery) {
@@ -64,7 +73,17 @@ module.exports = class Model {
     const start = this.table.update(changes)
     const query = this._constructQuery(idOrQuery, start)
     query.returning()
+    if (_.isFunction(this.beforeUpdate)) {
+      this.findOne(idOrQuery)
+        .then((model) => this.beforeUpdate(model, fields))
+    }
     return this._returnOne(query)
+      .then((model) => {
+        if (_.isFunction(this.afterUpdate)) {
+          this.afterUpdate(model, fields)
+        }
+        return model
+      })
   }
 
   static count(search = {}) {
@@ -78,7 +97,16 @@ module.exports = class Model {
   static destroy(idOrQuery) {
     const startingQuery = this.table.delete()
     const query = this._constructQuery(idOrQuery, startingQuery)
+    if (_.isFunction(this.beforeDestroy)) {
+      this.findOne(idOrQuery)
+        .then((model) => this.beforeDestroy(model))
+    }
     return this.connection.query(query.toQuery())
+      .then(() => {
+        if (_.isFunction(this.afterDestroy)) {
+          this.afterDestroy()
+        }
+      })
   }
 
   static destroyAll({ yesImReallySure }) {

@@ -215,6 +215,69 @@ describe('server/lib/model', () => {
       })
     })
 
+    context('lifecycle hooks', () => {
+
+      context('create hooks', () => {
+
+        it('should call before and after hooks when creating model', async () => {
+          const beforeSpy = sinon.spy()
+          const afterSpy = sinon.spy()
+          const fields = { name: 'Create Hooks' }
+          User.beforeCreate = (fields) => {
+            beforeSpy(fields)
+          }
+          User.afterCreate = (model, fields) => {
+            afterSpy(model, fields)
+          }
+          const user = await User.create(fields)
+          expect(beforeSpy).to.be.calledWith(fields)
+          expect(afterSpy).to.be.calledWith(user, fields)
+        })
+
+      })
+
+      context('update hooks', () => {
+
+        it('should call before and after hooks when updating model', async () => {
+          const beforeSpy = sinon.spy()
+          const afterSpy = sinon.spy()
+          const fields = { name: 'Before Hooks' }
+          const changes = { name: 'Update Hooks' }
+          User.beforeUpdate = (model, changes) => {
+            beforeSpy(model, changes)
+          }
+          User.afterUpdate = (model, changes) => {
+            afterSpy(model, changes)
+          }
+          const user = await User.create(fields)
+          const updated = await User.update(user.id, changes)
+          expect(beforeSpy).to.be.calledWith(user, changes)
+          expect(afterSpy).to.be.calledWith(updated, changes)
+        })
+
+      })
+
+      context('destroy hooks', () => {
+
+        it('should call before and after hooks when destroying model', async () => {
+          const beforeSpy = sinon.spy()
+          const afterSpy = sinon.spy()
+          User.beforeDestroy = (model) => {
+            beforeSpy(model)
+          }
+          User.afterDestroy = () => {
+            afterSpy()
+          }
+          const user = await User.create({ name: 'Destroy Hooks' })
+          await User.destroy(user.id)
+          expect(beforeSpy).to.be.calledWith(user)
+          expect(afterSpy).to.be.called
+        })
+
+      })
+
+    })
+
     context('._constructQuery()', () => {
 
       it('should convert field names to snake_case', () => {

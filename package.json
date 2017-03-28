@@ -40,6 +40,7 @@
   },
   "dependencies": {
     "lodash": "4.17.4",
+    "sinon-chai": "2.9.0",
     "sql": "0.74.0"
   },
   "engines": {
