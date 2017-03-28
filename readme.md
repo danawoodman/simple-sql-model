@@ -56,9 +56,10 @@ class User extends Model {
   // Class methods
   //---------------------------------------
 
-  myCustomQuery() {
-    this.table
+  myCustomClassMethod() {
+    // do some magic here...
   }
+
 }
 
 // Setup the database connection for the model.
