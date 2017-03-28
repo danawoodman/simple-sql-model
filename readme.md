@@ -314,6 +314,10 @@ npm test # or npm run watch-test
 
 ## Changelog
 
+### v0.4.1
+
+- Fix changelog numbers in readme
+
 ### v0.4.0
 
 - Add `model.save()` method to create a row from an unsaved model instance.
