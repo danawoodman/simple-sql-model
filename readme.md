@@ -53,38 +53,57 @@ User.configure({
   ],
 })
 
-// Create user
+
+//-------------------------------------------------------
+// Create rows
+//-------------------------------------------------------
+
 const user = await User.create({ name: 'John' }) // save directly
 const user2 = new User({ name: 'Bill' }) // initialize model instance
 await user2.save() // save model instance to DB
 
-// Update user
+//-------------------------------------------------------
+// Update rows
+//-------------------------------------------------------
+
 await user.update({ name: 'Johnny' })
 await User.update(user.id, { name: 'Johnny' })
 
-// Find users
+//-------------------------------------------------------
+// Find rows
+//-------------------------------------------------------
+
 await User.findOne(user.id)
+// returns first match from query
 await User.findOne({
-  // returns first match from query
   where: { name: { equals: 'John' } },
 })
 await User.findMany() // returns all users
+// returns array of matches
 await User.findMany({
-  // returns array of matches
   where: { name: { equals: 'John' } },
 })
 
-// Count number of users
+//-------------------------------------------------------
+// Count number of rows
+//-------------------------------------------------------
+
 await User.count()
 await User.count({
   // includes j in name (case-insensitive)
   where: { name: { ilike: '%j%' } },
 })
 
-// Destroy the user
+//-------------------------------------------------------
+// Delete rows
+//-------------------------------------------------------
+
 await user.destroy()
 await User.destroy(user.id)
 await User.destroy({ where: { name: { equals: 'John' } } })
+// Destroys everything so we want to make sure you 
+// want this to happen!
+await User.destroyAll({ yesImReallySure: true })
 ```
 
 A more complete example:
