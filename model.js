@@ -34,7 +34,7 @@ module.exports = class Model {
     if (!schema.columns) throw new Error('columns is required!')
     if (!schema.table) throw new Error('table is required!')
 
-    this.schema = schema.columns
+    this.columns = schema.columns
     this.connection = schema.connection
     this.tableName = schema.table
     this.table = sql.define({
