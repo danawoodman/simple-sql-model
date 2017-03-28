@@ -260,7 +260,7 @@ Count up the number of matching records in the table. If an optional query is pa
 - **Returns:** the provided database connection object.
 
 
-#### `Model.table`
+#### `Model.tableName`
 
 - **Returns:** the provided table name.
 
