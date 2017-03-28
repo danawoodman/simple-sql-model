@@ -191,7 +191,7 @@ Checkout [this page](https://github.com/brianc/node-sql/blob/5ec7827cf637a4fe6b9
 
 This must be called to connect your model to a SQL database.
 
-- **Returns:**  Nothing
+- **Returns:**  `undefined`
 - **Arguments:**
   - `connection` - A connection to a SQL database that provides a Promise aware `.query()` method. This `query` method is what `simple-sql-model` will pass SQL strings to. It expects the results to be return directly (eg a `Object` representing a row or an `Array` representing a set of rows).
   - `columns` - An `Array` of table column name `String`s that map to your schema. They can be in snake_case or camelCase as we always convert to snake_case when converting queries to SQL.
