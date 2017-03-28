@@ -67,7 +67,7 @@ User.configure({
 
   // The DB connection to use. Must provide a Promise
   // returning `query` function to be compatible.
-  connection: connection,
+  connection,
 
   table: 'users',
 
