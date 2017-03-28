@@ -27,14 +27,38 @@ yarn add simple-sql-model
 
 ## Usage
 
-A simple example:
-
 ```js
-const connection = require('./db-connection') // some SQL db connection...
+const Connect = require('pg-promise')()
 const Model = require('simple-sql-model')
 
+// Connect to a Postgres DB. The connection can
+// be to any SQL compatible DB that the `sql`
+// module supports. The returned connection
+// object must provide a Promise returning `query` 
+// method to be compatible.
+const connection = Connect({
+  database: 'my-db',
+  user: 'myuser',
+})
+
 class User extends Model {
-  // Add specific class or instance methods for this model here...
+
+  //---------------------------------------
+  // Instance methods
+  //---------------------------------------
+
+  toString() {
+    return this.name
+  }
+
+
+  //---------------------------------------
+  // Class methods
+  //---------------------------------------
+
+  myCustomQuery() {
+    this.table
+  }
 }
 
 // Setup the database connection for the model.
@@ -50,6 +74,7 @@ User.configure({
   columns: [
     'id',
     'name',
+    'isAdmin', // gets snake-cased to `is_admin`
   ],
 })
 
@@ -80,9 +105,11 @@ await User.findOne({
 })
 // returns all users
 await User.findMany()
-// returns array of matches
+// returns array of the first 5 matches ordered by first name
 await User.findMany({
   where: { name: { equals: 'John' } },
+  order: { name: 'asc' },
+  limit: 5,
 })
 
 //-------------------------------------------------------
@@ -105,69 +132,16 @@ await User.destroy({ where: { name: { equals: 'John' } } })
 // Destroys everything so we want to make sure you 
 // want this to happen!
 await User.destroyAll({ yesImReallySure: true })
-```
-
-A more complete example:
-
-```js
-const Connect = require('pg-promise')()
-const Model = require('simple-sql-model')
-
-// Connect to a Postgres DB
-const connection = Connect({
-  database: 'my-db',
-  user: 'myuser',
-})
-
-class User extends Model {
-
-  //---------------------------------------
-  // Instance methods
-  //---------------------------------------
-
-  toString() {
-    return this.name
-  }
 
 
-  //---------------------------------------
-  // Class methods
-  //---------------------------------------
+//-------------------------------------------------------
+// Other helpful methods
+//-------------------------------------------------------
 
-  myCustomQuery() {
-    this.table
-  }
-}
-
-User.configure({
-  connection: connection,
-  table: 'users',
-  columns: [
-    'id',
-    'name',
-    'email',
-    'isAdmin', // gets snake-cased to `is_admin`
-  ]
-})
-
-// create
-await User.create({
-  name: 'John Smith',
-  email: 'john@google.com',
-  isAdmin: false,
-})
-
-// findOne
-await User.findOne(1)
-await User.findOne({ where: { name: { equals: 'John' } } })
-
-// findMany
-await User.findMany({ where: { name: { equals: 'John' } } })
-
-// Create a new model instance (not in DB)
-const user = new User({ name: 'John' })
-console.log(user.toString()) //=> 'John'
-console.log(String(user)) //=> 'John'
+User.toString() //=> 'User'
+String(User) //=> 'User'
+User.tableName // => 'users'
+User.columns // => [ 'id', 'name', 'isAdmin' ]
 ```
 
 
@@ -275,8 +249,8 @@ Count up the number of matching records in the table. If an optional query is pa
 - **Returns:** the provided table name.
 
 
-#### `Model.schema`
-- **Returns:** the provided DB schema.
+#### `Model.columns`
+- **Returns:** the provided `Array` of column names.
 
 
 ### Instance Methods
