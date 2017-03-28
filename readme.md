@@ -14,7 +14,17 @@ This provides a bunch of convenience methods to create simple DB models quickly 
 - This isn't feature complete but it offers hooks to extend so you're not stuck with it's functionality. Pull requests welcome though!
 
 
-# TODO
+## Features
+
+- Support for any database that the [`sql`](https://github.com/brianc/node-sql) module supports
+- Support for CRUD operations (`Model.create`, `Model.update`, `Model.destroy`)
+- Support querying (`Model.findOne`, `Model.findMany`)
+- Support counting records (`Model.count`)
+- Support instance methods (`model.update`, `model.destroy`)
+- Support before/after style hooks (`Model.beforeCreate`, `Model.afterCreate`, `Model.beforeUpdate`, `Model.afterUpdate`, `Model.beforeDestroy`, `Model.afterDestroy`)
+
+
+## TODO
 
 - [ ] Support `or`/`and` style queries
 - [ ] Add validation support
