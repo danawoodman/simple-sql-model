@@ -106,98 +106,117 @@ The query object looks like:
 Checkout [this page](https://github.com/brianc/node-sql/blob/5ec7827cf637a4fe6b930fd4e8d27e6a8cb5289f/test/binary-clause-tests.js#L11) on the available `where` options as well as check out the test for more examples.
 
 
-### `Model.create(fields)`
+### Class Methods
+
+
+#### `Model.create(fields)`
 
 Creates a new row in the DB with the given fields and returns a new model instance.
 
-#### Returns
+##### Returns
 
 A new `Model` instance.
 
-#### Arguments
+##### Arguments
 
 - `fields` - The fields to create the new model from. Must match the schema.
 
 
-### `Model.findOne(idOrQuery)`
+#### `Model.findOne(idOrQuery)`
 
 Finds one (or no) rows based on the given ID or query.
 
-#### Returns
+##### Returns
 
 A `Model` instance of the matched row or `null`.
 
-#### Arguments
+##### Arguments
 
 - `idOrQuery` - An ID (`Number` or `String`) or query object to find the row in the table.
 
 
-### `Model.findMany(query)`
+#### `Model.findMany(query)`
 
 Finds one or more rows based on the given ID or query.
 
-#### Returns
+##### Returns
 
 A array of `Model` instances of the matched row or an empty array (`[]`).
 
-#### Arguments
+##### Arguments
 
 - `idOrQuery` - An ID (`Number` or `String`) or query object to find the row in the table.
 
 
-### `Model.update(idOrQuery, changes)`
+#### `Model.update(idOrQuery, changes)`
 
 Updates a row in the table with given changes based on an ID or query.
 
-#### Returns
+##### Returns
 
 An updated `Model` instance.
 
-#### Arguments
+##### Arguments
 
 - `idOrQuery` - An ID (`Number` or `String`) or query object to find the row in the table.
 - `changes` - An `Object` of the changes to the row. This can be one, some or all of the columns in the given table to change (eg partial or full updates are possible).
 
 
-### `Model.destroy(idOrQuery)`
+#### `Model.destroy(idOrQuery)`
 
 Deletes a row from the table based on an ID or query.
 
-#### Returns
+##### Returns
 
 `undefined`
 
-#### Arguments
+##### Arguments
 
 - `idOrQuery` - An ID (`Number` or `String`) or query object to find the row to delete in the table.
 
 
-### `Model.count([query])`
+#### `Model.count([query])`
 
 Count up the number of matching records in the table. If an optional query is passed in, count the number of rows that match the query.
 
-#### Returns
+##### Returns
 
 Count (`Number`) of matching rows or `0`.
 
-#### Arguments
+##### Arguments
 
 - `query` (optional) - The query to use to limited the returned rows. If no query provided, it returns total amount of rows for this table.
 
 
-### `Model.connection`
+### Class Properties
+
+
+#### `Model.connection`
 
 Returns the provided database connection object.
 
 
-### `Model.table`
+#### `Model.table`
 
 Returns the provided table name.
 
 
-### `Model.schema`
+#### `Model.schema`
 
 Returns the provided DB schema.
+
+
+### Instance Methods
+
+
+#### `model.update()`
+
+Same as `Model.update()` but no ID is required and returns the updated model instance.
+
+
+#### `model.destroy()`
+
+Same as `Model.destroy()` but no ID is required.
 
 
 ## Development
