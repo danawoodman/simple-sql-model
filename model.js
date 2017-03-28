@@ -151,6 +151,7 @@ module.exports = class Model {
     if (search && search.where) {
       _.map(search.where, (filters, field) => {
         _.map(filters, (value, filter) => {
+          // TODO: Support "and/or" type queries
           query.where(this.table[_.snakeCase(field)][filter](value))
         })
       })
@@ -159,7 +160,6 @@ module.exports = class Model {
     // Sort results
     if (search && search.order) {
       _.map(search.order, (sort, field) => {
-        // TODO: Support "and/or" type queries
         query.order(this.table[_.snakeCase(field)][sort])
       })
     }
