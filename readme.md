@@ -65,18 +65,21 @@ await User.update(user.id, { name: 'Johnny' })
 // Find users
 await User.findOne(user.id)
 await User.findOne({
+  // returns first match from query
   where: { name: { equals: 'John' } },
-}) // returns first match from query
+})
 await User.findMany() // returns all users
 await User.findMany({
+  // returns array of matches
   where: { name: { equals: 'John' } },
-}) // returns array of matches
+})
 
 // Count number of users
 await User.count()
 await User.count({
+  // includes j in name (case-insensitive)
   where: { name: { ilike: '%j%' } },
-}) // includes j in name (case-insensitive)
+})
 
 // Destroy the user
 await user.destroy()
