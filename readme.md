@@ -14,6 +14,12 @@ This provides a bunch of convenience methods to create simple DB models quickly 
 - This isn't feature complete but it offers hooks to extend so you're not stuck with it's functionality. Pull requests welcome though!
 
 
+# TODO
+
+- [ ] Support `or`/`and` style queries
+- [ ] Add validation support
+
+
 ## Installation
 
 ```bash
