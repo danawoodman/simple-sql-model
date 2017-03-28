@@ -84,52 +84,67 @@ User.configure({
 // Create rows
 //-------------------------------------------------------
 
-const user = await User.create({ name: 'John' }) // save directly
-const user2 = new User({ name: 'Bill' }) // initialize model instance
-await user2.save() // save model instance to DB
+// Save row directly.
+const user = await User.create({ name: 'John' })
+
+// Initialize model instance and then save it to the DB.
+const user2 = new User({ name: 'Bill' })
+await user2.save()
+
 
 //-------------------------------------------------------
 // Update rows
 //-------------------------------------------------------
 
 await user.update({ name: 'Johnny' })
+
 await User.update(user.id, { name: 'Johnny' })
+
 
 //-------------------------------------------------------
 // Find rows
 //-------------------------------------------------------
 
 await User.findOne(user.id)
-// returns first match from query
+
+// Returns first match from query
 await User.findOne({
   where: { name: { equals: 'John' } },
 })
-// returns all users
+
+// Returns all users
 await User.findMany()
-// returns array of the first 5 matches ordered by first name
+
+// Returns array of the first 5 matches ordered by first name
 await User.findMany({
   where: { name: { equals: 'John' } },
   order: { name: 'asc' },
   limit: 5,
 })
 
+
 //-------------------------------------------------------
 // Count number of rows
 //-------------------------------------------------------
 
 await User.count()
+
 await User.count({
   // includes j in name (case-insensitive)
   where: { name: { ilike: '%j%' } },
 })
+
 
 //-------------------------------------------------------
 // Delete rows
 //-------------------------------------------------------
 
 await user.destroy()
+
 await User.destroy(user.id)
+
 await User.destroy({ where: { name: { equals: 'John' } } })
+
 // Destroys everything so we want to make sure you 
 // want this to happen!
 await User.destroyAll({ yesImReallySure: true })
