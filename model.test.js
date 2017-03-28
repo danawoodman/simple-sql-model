@@ -23,6 +23,12 @@ describe('server/lib/model', () => {
     })
   })
 
+  afterEach(async () => {
+    await User.destroyAll({
+      yesImReallySure: true,
+    })
+  })
+
   context('initialization', () => {
 
     it('should return inherited class name when stringifying', () => {
@@ -54,9 +60,9 @@ describe('server/lib/model', () => {
       })
 
       it('should find by query if a query is passed in', async () => {
-        const user = await User.create({ name: 'Test1' })
+        const user = await User.create({ name: 'Some Dude' })
         const found = await User.findOne({
-          where: { name: { equals: 'Test1' } },
+          where: { name: { equals: 'Some Dude' } },
         })
         expect(found).to.deep.equal(user)
       })
@@ -76,7 +82,8 @@ describe('server/lib/model', () => {
         const u1 = await User.create({ name: 'User 1' })
         const u2 = await User.create({ name: 'User 2' })
         const result = await User.findMany()
-        expect([ u1, u2 ]).to.deep.equal(result)
+        expect(result).to.include(u1)
+        expect(result).to.include(u2)
       })
 
       it('should allow ordering', async () => {
@@ -237,6 +244,29 @@ describe('server/lib/model', () => {
 
     it('should stringify name of model by default', () => {
       expect(String(new User({ name: 'John' }))).to.equal('User')
+    })
+
+    context('.update()', () => {
+
+      it('should update the user', async () => {
+        const user = await User.create({ name: 'A Person' })
+        await user.update({ name: 'Another Person' })
+        const fromDb = await User.findMany()
+        expect(user.name).to.equal('Another Person')
+        expect(fromDb[0].name).to.equal('Another Person')
+      })
+
+    })
+
+    context('.destroy()', () => {
+
+      it('should remove row from DB', async () => {
+        const user = await User.create({ name: 'Destroyed' })
+        await user.destroy()
+        const users = await User.findMany()
+        expect(users).to.have.length(0)
+      })
+
     })
 
   })

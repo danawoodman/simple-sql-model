@@ -36,65 +36,83 @@ module.exports = class Model {
 
     this.schema = schema.columns
     this.connection = schema.connection
-    this.table = schema.table
+    this.tableName = schema.table
     this.table = sql.define({
       name: schema.table,
       columns: _.map(schema.columns, (column) => _.snakeCase(column)),
     })
   }
 
-  static async create(fields) {
+  static create(fields) {
     const values = this._toDbFromModel(fields)
     const query = this.table.insert(values).returning()
-    const result = await this.connection.query(query.toQuery())
-    return new this(result[0])
+    return this._returnOne(query)
   }
 
-  static async findOne(idOrQuery) {
-    let query = this._constructQuery(idOrQuery)
-    query.limit(1)
-    const result = await this.connection.query(query.toQuery())
-    if (!result[0]) return null
-    return new this(result[0])
+  static findOne(idOrQuery) {
+    let query = this._constructQuery(idOrQuery).limit(1)
+    return this._returnOne(query)
   }
 
-  static async findMany(search) {
+  static findMany(search) {
     const query = this._constructQuery(search)
-    const result = await this.connection.query(query.toQuery())
-    return result.map((e) => new this(e))
+    return this._returnMany(query)
   }
 
-  static async update(idOrQuery, fields) {
+  static update(idOrQuery, fields) {
     const changes = this._toDbFromModel(fields)
     const start = this.table.update(changes)
     const query = this._constructQuery(idOrQuery, start)
     query.returning()
-    const result = await this.connection.query(query.toQuery())
-    return new this(result[0])
+    return this._returnOne(query)
   }
 
-  static async count(search = {}) {
+  static count(search = {}) {
     const startingQuery = this.table.select(this.table.count())
     const query = this._constructQuery(search, startingQuery)
-    const result = await this.connection.query(query.toQuery())
-    return Number(result[0].users_count)
+    return this.connection
+      .query(query.toQuery())
+      .then((result)=> Number(result[0].users_count))
   }
 
-  static async destroy(idOrQuery) {
+  static destroy(idOrQuery) {
     const startingQuery = this.table.delete()
     const query = this._constructQuery(idOrQuery, startingQuery)
-    await this.connection.query(query.toQuery())
+    return this.connection.query(query.toQuery())
   }
 
-  static async destroyAll({ yesImReallySure }) {
+  static destroyAll({ yesImReallySure }) {
     if (yesImReallySure) {
-      const query = this.table.delete().toQuery()
-      await this.connection.query(query)
+      const query = this.table.delete()
+      return this.connection.query(query.toQuery())
     }
   }
 
   static toString() {
     return this.name
+  }
+
+
+  //---------------------------------------------
+  // Instance methods
+  //---------------------------------------------
+
+  update(fields) {
+    return this.constructor
+      .update(this.id, fields)
+      .then((model) => {
+        Object.assign(this, model)
+        return model
+      })
+  }
+
+  destroy() {
+    return this.constructor
+      .destroy(this.id)
+  }
+
+  toString() {
+    return this.constructor.name
   }
 
 
@@ -148,21 +166,28 @@ module.exports = class Model {
     return query
   }
 
-  static _toDbFromModel(model) { return decamelizeObject(model) }
+  static _returnOne(query) {
+    return this.connection
+      .query(query.toQuery())
+      .then((result) => result && result[0] ? new this(result[0]) : null)
+  }
 
-  static _toModelFromDb(fields) { return camelizeObject(fields) }
+  static _returnMany(query) {
+    return this.connection
+      .query(query.toQuery())
+      .then((result) => result.map((row) => new this(row)))
+  }
+
+  static _toDbFromModel(model) {
+    return decamelizeObject(model)
+  }
+
+  static _toModelFromDb(fields) {
+    return camelizeObject(fields)
+  }
 
   static _debug() {
     if (this.debug) console.log(...arguments)
-  }
-
-
-  //---------------------------------------------
-  // Instance methods
-  //---------------------------------------------
-
-  toString() {
-    return this.constructor.name
   }
 
 }
