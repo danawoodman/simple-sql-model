@@ -304,6 +304,10 @@ npm test # or npm run watch-test
 
 ## Changelog
 
+### v0.4.2
+
+- **[CHANGE]** Change `Model.schema` to `Model.columns`.
+
 ### v0.4.1
 
 - Fix changelog numbers in readme
