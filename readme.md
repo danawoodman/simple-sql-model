@@ -334,6 +334,11 @@ Count up the number of matching records in the table. If an optional query is pa
 ### Class Properties
 
 
+#### `Model.className`
+
+- **Returns:** the name of the constructor class as a `String`
+
+
 #### `Model.connection`
 
 - **Returns:** the provided database connection object.
