@@ -383,6 +383,10 @@ npm test # or npm run watch-test
 
 ## Changelog
 
+### v0.6.0
+
+- Add `model.className` getter to return constructor class name.
+
 ### v0.5.0
 
 - Add hooks for lifecycle methods `Model.beforeCreate`, `Model.afterCreate`, `Model.beforeUpdate`, `Model.afterUpdate`, `Model.beforeDestroy`, and `Model.afterDestroy`.
