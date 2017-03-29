@@ -184,6 +184,7 @@ module.exports = class Model {
       _.map(search.where, (filters, field) => {
         _.map(filters, (value, filter) => {
           // TODO: Support "and/or" type queries
+          this._debug('[_constructQuery] Constructing where filter for: ', { filter, field: _.snakeCase(field), value })
           query.where(this.table[_.snakeCase(field)][filter](value))
         })
       })
