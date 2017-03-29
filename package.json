@@ -1,6 +1,6 @@
 {
   "name": "simple-sql-model",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Simple model wrapper around a `sql` table.",
   "main": "model.js",
   "directories": {
