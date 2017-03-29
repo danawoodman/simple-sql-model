@@ -3,7 +3,7 @@ const sql = require('sql')
 
 class User extends Model {}
 
-//User.debug = true
+User.debug = true
 
 User.configure({
   connection, // defined in test/helpers.js
@@ -11,6 +11,7 @@ User.configure({
   columns: [
     'id',
     'name',
+    'isAdmin',
     'createdAt',
   ]
 })
@@ -108,6 +109,21 @@ describe('server/lib/model', () => {
         })
         expect(result).to.have.length(1)
         expect(u2).to.deep.equal(result[0])
+      })
+
+      it('should allow multiple filters', async () => {
+        const u1 = await User.create({ name: 'James', isAdmin: true })
+        const u2 = await User.create({ name: 'Jim', isAdmin: true })
+        const u3 = await User.create({ name: 'Bob', isAdmin: false })
+        const result = await User.findMany({
+          where: {
+            name: { ilike: 'j%' },
+            isAdmin: { equals: true },
+          },
+        })
+        expect(result).to.have.length(2)
+        expect(result).to.include(u1)
+        expect(result).to.include(u2)
       })
 
       it('should allow chaining queries', async () => {
