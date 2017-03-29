@@ -147,6 +147,10 @@ module.exports = class Model {
     return this.constructor.destroy(this.id)
   }
 
+  get className() {
+    return this.constructor.name
+  }
+
   toString() {
     return this.constructor.name
   }

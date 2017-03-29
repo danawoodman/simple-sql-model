@@ -309,6 +309,15 @@ describe('server/lib/model', () => {
       expect(String(new User({ name: 'John' }))).to.equal('User')
     })
 
+    context('.className', () => {
+
+      it('should return name of class', () => {
+        const user = new User({ name: 'Fred' })
+        expect(user.className).to.equal('User')
+      })
+
+    })
+
     context('.save()', () => {
 
       it('should create and return model', async () => {
