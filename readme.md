@@ -388,6 +388,10 @@ npm test # or npm run watch-test
 
 ## Changelog
 
+### v0.6.1
+
+- Add better error message when a filter is called on a field not in the schema.
+
 ### v0.6.0
 
 - Add `model.className` getter to return constructor class name.
