@@ -72,17 +72,17 @@ class User extends Model {
   // Class methods
   //---------------------------------------
 
-  myCustomClassMethod() {
+  static myCustomClassMethod() {
     // do some magic here...
   }
 
   // before/after hooks:
-  beforeCreate(fields) {}
-  afterCreate(model, fields) {}
-  beforeUpdate(model, fields) {}
-  afterUpdate(model, fields) {}
-  beforeDestroy(model) {}
-  afterDestroy() {}
+  static beforeCreate(fields) {}
+  static afterCreate(model, fields) {}
+  static beforeUpdate(model, fields) {}
+  static afterUpdate(model, fields) {}
+  static beforeDestroy(model) {}
+  static afterDestroy() {}
 
 }
 
