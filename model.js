@@ -184,8 +184,14 @@ module.exports = class Model {
       _.map(search.where, (filters, field) => {
         _.map(filters, (value, filter) => {
           // TODO: Support "and/or" type queries
+          // TODO: better error message if a key is not in the schema
+          const snakedField = _.snakeCase(field)
+          const column = this.table[snakedField]
+          if (!column) {
+            throw new Error(`No column "${snakedField}" found in schema. Make sure "${snakedField}" is defined in your list of columns in your configuration.`)
+          }
           this._debug('[_constructQuery] Constructing where filter for: ', { filter, field: _.snakeCase(field), value })
-          query.where(this.table[_.snakeCase(field)][filter](value))
+          query.where(column[filter](value))
         })
       })
     }

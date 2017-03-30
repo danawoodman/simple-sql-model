@@ -239,12 +239,8 @@ describe('server/lib/model', () => {
           const beforeSpy = sinon.spy()
           const afterSpy = sinon.spy()
           const fields = { name: 'Create Hooks' }
-          User.beforeCreate = (fields) => {
-            beforeSpy(fields)
-          }
-          User.afterCreate = (model, fields) => {
-            afterSpy(model, fields)
-          }
+          User.beforeCreate = (fields) => beforeSpy(fields)
+          User.afterCreate = (model, fields) => afterSpy(model, fields)
           const user = await User.create(fields)
           expect(beforeSpy).to.be.calledWith(fields)
           expect(afterSpy).to.be.calledWith(user, fields)
@@ -259,12 +255,8 @@ describe('server/lib/model', () => {
           const afterSpy = sinon.spy()
           const fields = { name: 'Before Hooks' }
           const changes = { name: 'Update Hooks' }
-          User.beforeUpdate = (model, changes) => {
-            beforeSpy(model, changes)
-          }
-          User.afterUpdate = (model, changes) => {
-            afterSpy(model, changes)
-          }
+          User.beforeUpdate = (model, changes) => beforeSpy(model, changes)
+          User.afterUpdate = (model, changes) => afterSpy(model, changes)
           const user = await User.create(fields)
           const updated = await User.update(user.id, changes)
           expect(beforeSpy).to.be.calledWith(user, changes)
@@ -278,12 +270,8 @@ describe('server/lib/model', () => {
         it('should call before and after hooks when destroying model', async () => {
           const beforeSpy = sinon.spy()
           const afterSpy = sinon.spy()
-          User.beforeDestroy = (model) => {
-            beforeSpy(model)
-          }
-          User.afterDestroy = () => {
-            afterSpy()
-          }
+          User.beforeDestroy = (model) => beforeSpy(model)
+          User.afterDestroy = () => afterSpy()
           const user = await User.create({ name: 'Destroy Hooks' })
           await User.destroy(user.id)
           expect(beforeSpy).to.be.calledWith(user)
@@ -305,6 +293,17 @@ describe('server/lib/model', () => {
           text: 'SELECT "users".* FROM "users" WHERE ("users"."created_at" = $1) ORDER BY "users"."created_at" DESC',
           values: [ 'value' ],
         })
+      })
+
+      it('should throw a helpful error if field is not in schema', () => {
+        try {
+          User._constructQuery({
+            where: { doesntExist: { equals: 'value' } },
+          })
+          throw new Error('should not get here')
+        } catch (err) {
+          expect(err.message).to.equal('No column "doesnt_exist" found in schema. Make sure "doesnt_exist" is defined in your list of columns in your configuration.')
+        }
       })
 
       //xit('should convert string IDs to numbers', () => {
