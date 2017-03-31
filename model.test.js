@@ -3,7 +3,7 @@ const sql = require('sql')
 
 class User extends Model {}
 
-User.debug = true
+//User.debug = true
 
 User.configure({
   connection, // defined in test/helpers.js
@@ -344,13 +344,10 @@ describe('server/lib/model', () => {
         expect(users[0]).to.deep.equal(user)
       })
 
-    })
-
-    context('.update()', () => {
-
-      it('should update the user', async () => {
+      it('should update the user if they exist', async () => {
         const user = await User.create({ name: 'A Person' })
-        await user.update({ name: 'Another Person' })
+        user.name = 'Another Person'
+        await user.save()
         const fromDb = await User.findMany()
         expect(user.name).to.equal('Another Person')
         expect(fromDb[0].name).to.equal('Another Person')

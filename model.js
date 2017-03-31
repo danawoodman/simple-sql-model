@@ -125,21 +125,26 @@ module.exports = class Model {
   // Instance methods
   //---------------------------------------------
 
+  /**
+   * If the instance has an ID, we assume it is
+   * persisted in the DB so we try to update it,
+   * otherwise we create it.
+   */
   save() {
+    if (this.id) {
+      return this.constructor
+        .update(this.id, this)
+        .then((model) => {
+          Object.assign(this, model)
+          return model
+        })
+    }
+
     return this.constructor
       .create(this)
       .then((row) => {
         Object.assign(this, row)
         return row
-      })
-  }
-
-  update(fields) {
-    return this.constructor
-      .update(this.id, fields)
-      .then((model) => {
-        Object.assign(this, model)
-        return model
       })
   }
 

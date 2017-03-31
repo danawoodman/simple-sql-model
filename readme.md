@@ -356,9 +356,11 @@ Count up the number of matching records in the table. If an optional query is pa
 ### Instance Methods
 
 
-#### `model.update()`
+#### `model.save()`
 
-- Same as `Model.update()` but no ID is required and returns the updated model instance.
+Create or update the given model instance. If the model is persisted to the DB, we update it, otherwise we create a new row.
+
+- **Returns:** Promise for the updated model instance
 
 
 #### `model.destroy()`
@@ -387,6 +389,10 @@ npm test # or npm run watch-test
 
 
 ## Changelog
+
+### v0.7.0
+
+- Remove `model.update()` in favor of a better `model.save` that creates or updates depending on if the instance is persisted in the DB.
 
 ### v0.6.1
 
