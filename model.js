@@ -20,7 +20,7 @@ module.exports = class Model {
 
   constructor(fields) {
     const attrs = this.constructor._toModelFromDb(fields)
-    Object.assign(this, attrs)
+    this._updateFields(attrs)
   }
 
 
@@ -37,45 +37,45 @@ module.exports = class Model {
     this.columns = schema.columns
     this.connection = schema.connection
     this.tableName = schema.table
+    this.references = schema.references
     this.table = sql.define({
       name: schema.table,
       columns: _.map(schema.columns, (column) => _.snakeCase(column)),
     })
   }
 
-  static create(fields) {
+  static async create(fields) {
     const values = this._toDbFromModel(fields)
     const query = this.table.insert(values).returning()
     if (_.isFunction(this.beforeCreate)) {
-      this.beforeCreate(fields)
+      await this.beforeCreate(fields)
     }
-    return this._returnOne(query)
-      .then((model) => {
-        if (_.isFunction(this.afterCreate)) {
-          this.afterCreate(model, fields)
-        }
-        return model
-      })
+    const model = await this._returnOne(query)
+    if (_.isFunction(this.afterCreate)) {
+      await this.afterCreate(model, fields)
+    }
+    return model
   }
 
-  static findOne(idOrQuery) {
+  static async findOne(idOrQuery) {
     let query = this._constructQuery(idOrQuery).limit(1)
-    return this._returnOne(query)
+    return await this._returnOne(query)
   }
 
-  static findMany(search) {
+  static async findMany(search) {
     const query = this._constructQuery(search)
-    return this._returnMany(query)
+    return await this._returnMany(query)
   }
 
-  static update(idOrQuery, fields) {
+  static async update(idOrQuery, fields) {
+    fields = this._onlyColumnValues(fields)
     const changes = this._toDbFromModel(fields)
     const start = this.table.update(changes)
     const query = this._constructQuery(idOrQuery, start)
     query.returning()
     if (_.isFunction(this.beforeUpdate)) {
-      this.findOne(idOrQuery)
-        .then((model) => this.beforeUpdate(model, fields))
+      const before = await this.findOne(idOrQuery)
+      await this.beforeUpdate(before, fields)
     }
     return this._returnOne(query)
       .then((model) => {
@@ -86,27 +86,25 @@ module.exports = class Model {
       })
   }
 
-  static count(search = {}) {
+  static async count(search = {}) {
     const startingQuery = this.table.select(this.table.count())
     const query = this._constructQuery(search, startingQuery)
-    return this.connection
-      .query(query.toQuery())
-      .then((result)=> Number(result[0].users_count))
+    const result = await this.connection.query(query.toQuery())
+    return Number(result[0].users_count)
   }
 
-  static destroy(idOrQuery) {
+  static async destroy(idOrQuery) {
     const startingQuery = this.table.delete()
     const query = this._constructQuery(idOrQuery, startingQuery)
     if (_.isFunction(this.beforeDestroy)) {
-      this.findOne(idOrQuery)
-        .then((model) => this.beforeDestroy(model))
+      const before = await this.findOne(idOrQuery)
+      await this.beforeDestroy(before)
     }
-    return this.connection.query(query.toQuery())
-      .then(() => {
-        if (_.isFunction(this.afterDestroy)) {
-          this.afterDestroy()
-        }
-      })
+    const result = await this.connection.query(query.toQuery())
+    if (_.isFunction(this.afterDestroy)) {
+      await this.afterDestroy(before)
+    }
+    return result
   }
 
   static destroyAll({ yesImReallySure }) {
@@ -130,22 +128,16 @@ module.exports = class Model {
    * persisted in the DB so we try to update it,
    * otherwise we create it.
    */
-  save() {
+  async save() {
     if (this.id) {
-      return this.constructor
-        .update(this.id, this)
-        .then((model) => {
-          Object.assign(this, model)
-          return model
-        })
+      const existing = await this.constructor.update(this.id, this)
+      this._updateFields(existing)
+      return existing
     }
 
-    return this.constructor
-      .create(this)
-      .then((row) => {
-        Object.assign(this, row)
-        return row
-      })
+    const created = await this.constructor.create(this)
+    this._updateFields(created)
+    return created
   }
 
   destroy() {
@@ -158,6 +150,10 @@ module.exports = class Model {
 
   toString() {
     return this.constructor.name
+  }
+
+  _updateFields(fields) {
+    _.assign(this, fields)
   }
 
 
@@ -221,13 +217,42 @@ module.exports = class Model {
   static _returnOne(query) {
     return this.connection
       .query(query.toQuery())
-      .then((result) => result && result[0] ? new this(result[0]) : null)
+      .then(async (result) => {
+        if (!result || !result[0]) return null
+        const model = new this(result[0])
+        return await this._expandReferences(model)
+      })
   }
 
   static _returnMany(query) {
     return this.connection
       .query(query.toQuery())
-      .then((result) => result.map((row) => new this(row)))
+      .then(async (result) => {
+        return await Promise.all(
+          result.map(async (row) => {
+            const model = new this(row)
+            return await this._expandReferences(model)
+          })
+        )
+      })
+  }
+
+  // Expand any related reference models
+  // as found in the refernces part of the configuration
+  // object.
+  static async _expandReferences(model) {
+    if (this.references) {
+      await Promise.all(
+        _.map(this.references, async (val, key) => {
+          model[key] = await val.model.findOne(model[val.key])
+        })
+      )
+    }
+    return model
+  }
+
+  static _onlyColumnValues(fields) {
+    return _.pick(fields, this.columns)
   }
 
   static _toDbFromModel(model) {

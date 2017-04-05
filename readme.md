@@ -9,8 +9,7 @@ This provides a bunch of convenience methods to create simple DB models quickly 
 
 - This is considered somewhat in flux, don't use in production unless you're sure.
 - This is stupid simple, it's just a dumb wrapper around the awesome `sql` module; you should check the source in `model.js` and the tests in `model.test.js` to see what's going on. I swear, it's *really simple*.
-- This depends on new ES6 features like `Class` so use Node 4.8.1 or above or transpile.
-  - Test require the use of `async`/`await` so please use Node 7.1.x or above when running tests.
+- This depends on new ES6 features like `async`/`await`, `Class` so use Node 7.8+ or above or transpile using Babel or similar.
 - This isn't feature complete but it offers hooks to extend so you're not stuck with it's functionality. Pull requests welcome though!
 
 
@@ -22,6 +21,7 @@ This provides a bunch of convenience methods to create simple DB models quickly 
 - Support counting records (`Model.count`)
 - Support instance methods (`model.update`, `model.destroy`)
 - Support before/after style hooks (`Model.beforeCreate`, `Model.afterCreate`, `Model.beforeUpdate`, `Model.afterUpdate`, `Model.beforeDestroy`, `Model.afterDestroy`)
+- Expand associated references so you don't have to manually.
 
 
 ## TODO
@@ -55,6 +55,14 @@ const Model = require('simple-sql-model')
 const connection = Connect({
   database: 'my-db',
   user: 'myuser',
+})
+
+class Account extends Model {}
+
+Account.configure({
+  connection,
+  table: 'accounts',
+  columns: [ 'id' ],
 })
 
 class User extends Model {
@@ -98,10 +106,22 @@ User.configure({
   // Define columns in the table
   columns: [
     'id',
+    'accountId', // foreign key
     'name',
     'isAdmin', // gets snake-cased to `is_admin`
   ],
+
+  // Define any foreign key references. We auto-expand
+  // these refernces into their respective model
+  // instances.
+  references: {
+    account: { // expands associated model into `model.account`
+      model: Account,
+      key: 'accountId',
+    },
+  },
 })
+
 
 
 //-------------------------------------------------------
@@ -145,6 +165,18 @@ await User.findMany({
   order: { name: 'asc' },
   limit: 5,
 })
+
+
+//-------------------------------------------------------
+// References
+//-------------------------------------------------------
+
+const account = await Account.create()
+const user = await User.create({
+  accountId: account.id,
+  name: 'Joe Blow',
+})
+user.account // same as `account` model instances
 
 
 //-------------------------------------------------------
@@ -211,7 +243,7 @@ Checkout [this page](https://github.com/brianc/node-sql/blob/5ec7827cf637a4fe6b9
 ### Class Methods
 
 
-#### `Model.configure({ connection, columns, table })`
+#### `Model.configure({ connection, columns, references, table })`
 
 This must be called to connect your model to a SQL database.
 
@@ -219,6 +251,7 @@ This must be called to connect your model to a SQL database.
 - **Arguments:**
   - `connection` - A connection to a SQL database that provides a Promise aware `.query()` method. This `query` method is what `simple-sql-model` will pass SQL strings to. It expects the results to be return directly (eg a `Object` representing a row or an `Array` representing a set of rows).
   - `columns` - An `Array` of table column name `String`s that map to your schema. They can be in snake_case or camelCase as we always convert to snake_case when converting queries to SQL.
+  - `references` (optional) - An object representing a mapping between a foreign key and it's model. By creating references, we will automatically expand any associated models.
   - `table` - The name of the table in your database to connect to (eg `'users'` or `'products'`).
 
 #### `Model.create(fields)`
@@ -389,6 +422,11 @@ npm test # or npm run watch-test
 
 
 ## Changelog
+
+### v0.8.0
+
+- Add `references` to `Model.configure` which will automatically expand any associated models automatically.
+- Go back to using `async`/`await`
 
 ### v0.7.0
 

@@ -1,6 +1,17 @@
 const Model = require('./model')
 const sql = require('sql')
 
+class Account extends Model {}
+
+Account.configure({
+  connection, // defined in test/helpers.js
+  table: 'accounts',
+  columns: [
+    'id',
+    'createdAt',
+  ],
+})
+
 class User extends Model {}
 
 //User.debug = true
@@ -8,20 +19,29 @@ class User extends Model {}
 User.configure({
   connection, // defined in test/helpers.js
   table: 'users',
+  references: {
+    account: {
+      model: Account,
+      key: 'accountId',
+    },
+  },
   columns: [
     'id',
+    'accountId',
     'name',
     'isAdmin',
     'createdAt',
-  ]
+  ],
 })
 
 describe('server/lib/model', () => {
+  let account
 
   beforeEach(async () => {
     await User.destroyAll({
       yesImReallySure: true,
     })
+    account = await Account.create()
   })
 
   afterEach(async () => {
@@ -41,10 +61,35 @@ describe('server/lib/model', () => {
 
   context('static methods', () => {
 
+    context('.toJSON()', () => {
+
+      it('should return all getters', async () => {
+        const user = await User.create({
+          accountId: account.id,
+          name: 'Some User',
+        })
+        expect(user).to.deep.equal({
+          id: user.id,
+          isAdmin: false,
+          accountId: account.id,
+          name: 'Some User',
+          account: {
+            id: account.id,
+            createdAt: account.createdAt,
+          },
+          createdAt: user.createdAt,
+        })
+      })
+
+    })
+
     context('.create()', () => {
 
       it('should return an instance of the created model', async () => {
-        const user = await User.create({ name: 'Some User' })
+        const user = await User.create({
+          accountId: account.id,
+          name: 'Some User',
+        })
         expect(user).to.be.instanceOf(User)
         expect(user.id).to.a.number
         expect(user.name).to.equal('Some User')
@@ -55,13 +100,19 @@ describe('server/lib/model', () => {
     context('.findOne()', () => {
 
       it('should find by ID if a number is passed in', async () => {
-        const user = await User.create({ name: 'Test1' })
+        const user = await User.create({
+          accountId: account.id,
+          name: 'Test1',
+        })
         const found = await User.findOne(user.id)
         expect(found).to.deep.equal(user)
       })
 
       it('should find by query if a query is passed in', async () => {
-        const user = await User.create({ name: 'Some Dude' })
+        const user = await User.create({
+          accountId: account.id,
+          name: 'Some Dude',
+        })
         const found = await User.findOne({
           where: { name: { equals: 'Some Dude' } },
         })
@@ -80,16 +131,28 @@ describe('server/lib/model', () => {
     context('.findMany()', () => {
 
       it('should return an array of matched results', async () => {
-        const u1 = await User.create({ name: 'User 1' })
-        const u2 = await User.create({ name: 'User 2' })
+        const u1 = await User.create({
+          accountId: account.id,
+          name: 'User 1',
+        })
+        const u2 = await User.create({
+          accountId: account.id,
+          name: 'User 2',
+        })
         const result = await User.findMany()
         expect(result).to.include(u1)
         expect(result).to.include(u2)
       })
 
       it('should allow ordering', async () => {
-        const u1 = await User.create({ name: 'A' })
-        const u2 = await User.create({ name: 'Z' })
+        const u1 = await User.create({
+          accountId: account.id,
+          name: 'A',
+        })
+        const u2 = await User.create({
+          accountId: account.id,
+          name: 'Z',
+        })
         const result = await User.findMany({
           order: {
             name: 'desc',
@@ -100,8 +163,14 @@ describe('server/lib/model', () => {
       })
 
       it('should allow filtering results', async () => {
-        const u1 = await User.create({ name: 'A' })
-        const u2 = await User.create({ name: 'Z' })
+        const u1 = await User.create({
+          accountId: account.id,
+          name: 'A',
+        })
+        const u2 = await User.create({
+          accountId: account.id,
+          name: 'Z',
+        })
         const result = await User.findMany({
           where: {
             name: { equals: 'Z' },
@@ -112,9 +181,21 @@ describe('server/lib/model', () => {
       })
 
       it('should allow multiple filters', async () => {
-        const u1 = await User.create({ name: 'James', isAdmin: true })
-        const u2 = await User.create({ name: 'Jim', isAdmin: true })
-        const u3 = await User.create({ name: 'Bob', isAdmin: false })
+        const u1 = await User.create({
+          accountId: account.id,
+          name: 'James',
+          isAdmin: true,
+        })
+        const u2 = await User.create({
+          accountId: account.id,
+          name: 'Jim',
+          isAdmin: true,
+        })
+        const u3 = await User.create({
+          accountId: account.id,
+          name: 'Bob',
+          isAdmin: false,
+        })
         const result = await User.findMany({
           where: {
             name: { ilike: 'j%' },
@@ -127,9 +208,18 @@ describe('server/lib/model', () => {
       })
 
       it('should allow chaining queries', async () => {
-        const u1 = await User.create({ name: 'John Zebra' })
-        const u2 = await User.create({ name: 'John Alligator' })
-        const u3 = await User.create({ name: 'Mary Loo Hoo' })
+        const u1 = await User.create({
+          accountId: account.id,
+          name: 'John Zebra',
+        })
+        const u2 = await User.create({
+          accountId: account.id,
+          name: 'John Alligator',
+        })
+        const u3 = await User.create({
+          accountId: account.id,
+          name: 'Mary Loo Hoo',
+        })
         const result = await User.findMany({
           where: { name: { like: 'John%' } }, // starts with...
           order: { name: 'asc' },
@@ -140,9 +230,18 @@ describe('server/lib/model', () => {
       })
 
       it('should allow limiting results', async () => {
-        const u = await User.create({ name: 'Tim' })
-        await User.create({ name: 'Jane' })
-        await User.create({ name: 'Elizabeth' })
+        const u = await User.create({
+          accountId: account.id,
+          name: 'Tim',
+        })
+        await User.create({
+          accountId: account.id,
+          name: 'Jane',
+        })
+        await User.create({
+          accountId: account.id,
+          name: 'Elizabeth',
+        })
         const result = await User.findMany({
           limit: 1,
         })
@@ -168,8 +267,14 @@ describe('server/lib/model', () => {
     context('.update()', () => {
 
       it('should update the given model row in the DB', async () => {
-        const u1 = await User.create({ name: 'Phil' })
-        const u2 = await User.create({ name: 'Rebecca' })
+        const u1 = await User.create({
+          accountId: account.id,
+          name: 'Phil',
+        })
+        const u2 = await User.create({
+          accountId: account.id,
+          name: 'Rebecca',
+        })
         const updated = await User.update(u1.id, { name: 'Philip' })
         expect(updated.name).to.equal('Philip')
         expect(u2.name).to.equal('Rebecca')
@@ -180,15 +285,27 @@ describe('server/lib/model', () => {
     context('.count()', () => {
 
       it('should count all rows if no query is passed', async () => {
-        await User.create({ name: 'Person 1' })
-        await User.create({ name: 'Person 2' })
+        await User.create({
+          accountId: account.id,
+          name: 'Person 1',
+        })
+        await User.create({
+          accountId: account.id,
+          name: 'Person 2',
+        })
         const count = await User.count()
         expect(count).to.equal(2)
       })
 
       it('should count all rows matching query', async () => {
-        await User.create({ name: 'Person 1' })
-        await User.create({ name: 'Person 2' })
+        await User.create({
+          accountId: account.id,
+          name: 'Person 1',
+        })
+        await User.create({
+          accountId: account.id,
+          name: 'Person 2',
+        })
         const count = await User.count({
           where: { name: { equals: 'Person 1' } },
         })
@@ -205,14 +322,20 @@ describe('server/lib/model', () => {
     context('.destroy()', () => {
 
       it('should destroy via ID', async () => {
-        const u = await User.create({ name: 'Some User' })
+        const u = await User.create({
+          accountId: account.id,
+          name: 'Some User',
+        })
         expect(await User.count()).to.equal(1)
         await User.destroy(u.id)
         expect(await User.count()).to.equal(0)
       })
 
       it('should destroy via query', async () => {
-        await User.create({ name: 'User 1' })
+        await User.create({
+          accountId: account.id,
+          name: 'User 1',
+        })
         expect(await User.count()).to.equal(1)
         await User.destroy({ where: { name: { equals: 'User 1' } } })
         expect(await User.count()).to.equal(0)
@@ -220,7 +343,10 @@ describe('server/lib/model', () => {
 
       it('should throw if no model found', async () => {
         try {
-          await User.create({ name: 'User 1' })
+          await User.create({
+            accountId: account.id,
+            name: 'User 1',
+          })
           expect(await User.count()).to.equal(1)
           await User.destroy({ where: { name: { equals: 'Doesnt match' } } })
           expect(await User.count()).to.equal(1)
@@ -238,7 +364,10 @@ describe('server/lib/model', () => {
         it('should call before and after hooks when creating model', async () => {
           const beforeSpy = sinon.spy()
           const afterSpy = sinon.spy()
-          const fields = { name: 'Create Hooks' }
+          const fields = {
+            accountId: account.id,
+            name: 'Create Hooks',
+          }
           User.beforeCreate = (fields) => beforeSpy(fields)
           User.afterCreate = (model, fields) => afterSpy(model, fields)
           const user = await User.create(fields)
@@ -253,7 +382,10 @@ describe('server/lib/model', () => {
         it('should call before and after hooks when updating model', async () => {
           const beforeSpy = sinon.spy()
           const afterSpy = sinon.spy()
-          const fields = { name: 'Before Hooks' }
+          const fields = {
+            accountId: account.id,
+            name: 'Before Hooks',
+          }
           const changes = { name: 'Update Hooks' }
           User.beforeUpdate = (model, changes) => beforeSpy(model, changes)
           User.afterUpdate = (model, changes) => afterSpy(model, changes)
@@ -272,7 +404,10 @@ describe('server/lib/model', () => {
           const afterSpy = sinon.spy()
           User.beforeDestroy = (model) => beforeSpy(model)
           User.afterDestroy = () => afterSpy()
-          const user = await User.create({ name: 'Destroy Hooks' })
+          const user = await User.create({
+            accountId: account.id,
+            name: 'Destroy Hooks',
+          })
           await User.destroy(user.id)
           expect(beforeSpy).to.be.calledWith(user)
           expect(afterSpy).to.be.called
@@ -316,6 +451,32 @@ describe('server/lib/model', () => {
 
     })
 
+    context('relations', () => {
+
+      it('should expand relations if passed in', async () => {
+        const user = await User.create({
+          accountId: account.id,
+          name: 'Some User',
+        })
+        expect(user.account).to.deep.equal(account)
+      })
+
+      it('should expand relations for arrays of results', async () => {
+        await User.create({
+          accountId: account.id,
+          name: 'Some User',
+        })
+        await User.create({
+          accountId: account.id,
+          name: 'Another user',
+        })
+        const users = await User.findMany()
+        expect(users[0].account).to.deep.equal(account)
+        expect(users[1].account).to.deep.equal(account)
+      })
+
+    })
+
   })
 
   context('instance methods', () => {
@@ -337,7 +498,10 @@ describe('server/lib/model', () => {
 
       it('should create and return model', async () => {
         expect(await User.findMany()).to.have.length(0)
-        const user = new User({ name: 'Fred' })
+        const user = new User({
+          accountId: account.id,
+          name: 'Fred',
+        })
         await user.save()
         const users = await User.findMany()
         expect(users).to.have.length(1)
@@ -345,7 +509,10 @@ describe('server/lib/model', () => {
       })
 
       it('should update the user if they exist', async () => {
-        const user = await User.create({ name: 'A Person' })
+        const user = await User.create({
+          accountId: account.id,
+          name: 'A Person',
+        })
         user.name = 'Another Person'
         await user.save()
         const fromDb = await User.findMany()
@@ -358,7 +525,10 @@ describe('server/lib/model', () => {
     context('.destroy()', () => {
 
       it('should remove row from DB', async () => {
-        const user = await User.create({ name: 'Destroyed' })
+        const user = await User.create({
+          accountId: account.id,
+          name: 'Destroyed',
+        })
         await user.destroy()
         const users = await User.findMany()
         expect(users).to.have.length(0)
