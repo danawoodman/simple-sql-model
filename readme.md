@@ -422,7 +422,7 @@ npm install
 npm test # or npm run watch-test
 ```
 
-Please see the `prettier.opts` file for prettier confiuration. You should run `npm run format` when making changes. We have a pre-commit hook setup to do this for you before you commit in case you forget 👍
+Please see the `prettier.opts` file for prettier confiuration. You should run `npm run format` when making changes. We have a pre-commit hook setup to do this for you before you commit in case you forget 👍  (**coming soon...**)
 
 
 ## Changelog
