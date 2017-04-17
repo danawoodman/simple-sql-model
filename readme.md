@@ -1,5 +1,7 @@
 # Simple SQL Model
 
+[![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
+
 > A simple model wrapper around the `sql` library with helpful query functions.
 
 This provides a bunch of convenience methods to create simple DB models quickly in a Rails-style query layout.
@@ -420,8 +422,15 @@ npm install
 npm test # or npm run watch-test
 ```
 
+Please see the `prettier.opts` file for prettier confiuration. You should run `npm run format` when making changes. We have a pre-commit hook setup to do this for you before you commit in case you forget 👍
+
 
 ## Changelog
+
+### v0.8.1
+
+- Fix issue where count was hard coding the table name. Doh... 😵
+- Add prettier formatting configuration via `npm run format` as well as a pre-commit hook
 
 ### v0.8.0
 

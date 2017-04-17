@@ -2,27 +2,32 @@ const _ = require('lodash')
 const sql = require('sql')
 
 function camelizeObject(fields) {
-  return _.reduce(fields, (result, value, key) => {
-    result[_.camelCase(key)] = value
-    return result
-  }, {})
+  return _.reduce(
+    fields,
+    (result, value, key) => {
+      result[_.camelCase(key)] = value
+      return result
+    },
+    {}
+  )
 }
 
 function decamelizeObject(fields) {
-  return _.reduce(fields, (result, value, key) => {
-    result[_.snakeCase(key)] = value
-    return result
-  }, {})
+  return _.reduce(
+    fields,
+    (result, value, key) => {
+      result[_.snakeCase(key)] = value
+      return result
+    },
+    {}
+  )
 }
 
 module.exports = class Model {
-
-
   constructor(fields) {
     const attrs = this.constructor._toModelFromDb(fields)
     this._updateFields(attrs)
   }
-
 
   //---------------------------------------------
   // Class methods
@@ -40,7 +45,7 @@ module.exports = class Model {
     this.references = schema.references
     this.table = sql.define({
       name: schema.table,
-      columns: _.map(schema.columns, (column) => _.snakeCase(column)),
+      columns: _.map(schema.columns, column => _.snakeCase(column)),
     })
   }
 
@@ -77,20 +82,19 @@ module.exports = class Model {
       const before = await this.findOne(idOrQuery)
       await this.beforeUpdate(before, fields)
     }
-    return this._returnOne(query)
-      .then((model) => {
-        if (_.isFunction(this.afterUpdate)) {
-          this.afterUpdate(model, fields)
-        }
-        return model
-      })
+    return this._returnOne(query).then(model => {
+      if (_.isFunction(this.afterUpdate)) {
+        this.afterUpdate(model, fields)
+      }
+      return model
+    })
   }
 
   static async count(search = {}) {
     const startingQuery = this.table.select(this.table.count())
     const query = this._constructQuery(search, startingQuery)
     const result = await this.connection.query(query.toQuery())
-    return Number(result[0].users_count)
+    return Number(result[0][`${this.tableName}_count`])
   }
 
   static async destroy(idOrQuery) {
@@ -117,7 +121,6 @@ module.exports = class Model {
   static toString() {
     return this.name
   }
-
 
   //---------------------------------------------
   // Instance methods
@@ -156,13 +159,11 @@ module.exports = class Model {
     _.assign(this, fields)
   }
 
-
   //---------------------------------------------
   // Private class methods
   //---------------------------------------------
 
   static _constructQuery(search, startingQuery) {
-
     // Convert a string version of the ID to a number
     // in case the consumer forgot to do the conversion themselves.
     if (typeof search === 'string') {
@@ -176,7 +177,9 @@ module.exports = class Model {
       }
     }
 
-    const query = startingQuery ? startingQuery : this.table.select(this.table.star())
+    const query = startingQuery
+      ? startingQuery
+      : this.table.select(this.table.star())
 
     // Filter results
     // See here for all possible values:
@@ -189,9 +192,15 @@ module.exports = class Model {
           const snakedField = _.snakeCase(field)
           const column = this.table[snakedField]
           if (!column) {
-            throw new Error(`No column "${snakedField}" found in schema. Make sure "${snakedField}" is defined in your list of columns in your configuration.`)
+            throw new Error(
+              `No column "${snakedField}" found in schema. Make sure "${snakedField}" is defined in your list of columns in your configuration.`
+            )
           }
-          this._debug('[_constructQuery] Constructing where filter for: ', { filter, field: _.snakeCase(field), value })
+          this._debug('[_constructQuery] Constructing where filter for: ', {
+            filter,
+            field: _.snakeCase(field),
+            value,
+          })
           query.where(column[filter](value))
         })
       })
@@ -215,26 +224,22 @@ module.exports = class Model {
   }
 
   static _returnOne(query) {
-    return this.connection
-      .query(query.toQuery())
-      .then(async (result) => {
-        if (!result || !result[0]) return null
-        const model = new this(result[0])
-        return await this._expandReferences(model)
-      })
+    return this.connection.query(query.toQuery()).then(async result => {
+      if (!result || !result[0]) return null
+      const model = new this(result[0])
+      return await this._expandReferences(model)
+    })
   }
 
   static _returnMany(query) {
-    return this.connection
-      .query(query.toQuery())
-      .then(async (result) => {
-        return await Promise.all(
-          result.map(async (row) => {
-            const model = new this(row)
-            return await this._expandReferences(model)
-          })
-        )
-      })
+    return this.connection.query(query.toQuery()).then(async result => {
+      return await Promise.all(
+        result.map(async row => {
+          const model = new this(row)
+          return await this._expandReferences(model)
+        })
+      )
+    })
   }
 
   // Expand any related reference models
@@ -266,5 +271,4 @@ module.exports = class Model {
   static _debug() {
     if (this.debug) console.log(...arguments)
   }
-
 }

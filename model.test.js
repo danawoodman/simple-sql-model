@@ -6,10 +6,7 @@ class Account extends Model {}
 Account.configure({
   connection, // defined in test/helpers.js
   table: 'accounts',
-  columns: [
-    'id',
-    'createdAt',
-  ],
+  columns: ['id', 'createdAt'],
 })
 
 class User extends Model {}
@@ -25,44 +22,39 @@ User.configure({
       key: 'accountId',
     },
   },
-  columns: [
-    'id',
-    'accountId',
-    'name',
-    'isAdmin',
-    'createdAt',
-  ],
+  columns: ['id', 'accountId', 'name', 'isAdmin', 'createdAt'],
 })
+
+async function clearDb() {
+  await User.destroyAll({
+    yesImReallySure: true,
+  })
+  await Account.destroyAll({
+    yesImReallySure: true,
+  })
+}
 
 describe('server/lib/model', () => {
   let account
 
   beforeEach(async () => {
-    await User.destroyAll({
-      yesImReallySure: true,
-    })
+    await clearDb()
     account = await Account.create()
   })
 
   afterEach(async () => {
-    await User.destroyAll({
-      yesImReallySure: true,
-    })
+    await clearDb()
   })
 
   context('initialization', () => {
-
     it('should return inherited class name when stringifying', () => {
       expect(User.toString()).to.equal('User')
       expect(String(User)).to.equal('User')
     })
-
   })
 
   context('static methods', () => {
-
     context('.toJSON()', () => {
-
       it('should return all getters', async () => {
         const user = await User.create({
           accountId: account.id,
@@ -80,11 +72,9 @@ describe('server/lib/model', () => {
           createdAt: user.createdAt,
         })
       })
-
     })
 
     context('.create()', () => {
-
       it('should return an instance of the created model', async () => {
         const user = await User.create({
           accountId: account.id,
@@ -94,11 +84,9 @@ describe('server/lib/model', () => {
         expect(user.id).to.a.number
         expect(user.name).to.equal('Some User')
       })
-
     })
 
     context('.findOne()', () => {
-
       it('should find by ID if a number is passed in', async () => {
         const user = await User.create({
           accountId: account.id,
@@ -125,11 +113,9 @@ describe('server/lib/model', () => {
         })
         expect(found).to.be.null
       })
-
     })
 
     context('.findMany()', () => {
-
       it('should return an array of matched results', async () => {
         const u1 = await User.create({
           accountId: account.id,
@@ -251,9 +237,9 @@ describe('server/lib/model', () => {
 
       xit('should allow custom queries', () => {
         //await User.findMany({
-          //query(schema) {
-            //return schema.select(schema.name).where(schema.id.in(Post.schema.select(Post.schema.userId)))
-          //}
+        //query(schema) {
+        //return schema.select(schema.name).where(schema.id.in(Post.schema.select(Post.schema.userId)))
+        //}
         //})
       })
 
@@ -261,11 +247,9 @@ describe('server/lib/model', () => {
         const result = await User.findMany()
         expect(result).to.have.length(0)
       })
-
     })
 
     context('.update()', () => {
-
       it('should update the given model row in the DB', async () => {
         const u1 = await User.create({
           accountId: account.id,
@@ -279,11 +263,9 @@ describe('server/lib/model', () => {
         expect(updated.name).to.equal('Philip')
         expect(u2.name).to.equal('Rebecca')
       })
-
     })
 
     context('.count()', () => {
-
       it('should count all rows if no query is passed', async () => {
         await User.create({
           accountId: account.id,
@@ -295,6 +277,7 @@ describe('server/lib/model', () => {
         })
         const count = await User.count()
         expect(count).to.equal(2)
+        expect(await Account.count()).to.equal(1)
       })
 
       it('should count all rows matching query', async () => {
@@ -316,11 +299,9 @@ describe('server/lib/model', () => {
         const count = await User.count()
         expect(count).to.equal(0)
       })
-
     })
 
     context('.destroy()', () => {
-
       it('should destroy via ID', async () => {
         const u = await User.create({
           accountId: account.id,
@@ -358,9 +339,7 @@ describe('server/lib/model', () => {
     })
 
     context('lifecycle hooks', () => {
-
       context('create hooks', () => {
-
         it('should call before and after hooks when creating model', async () => {
           const beforeSpy = sinon.spy()
           const afterSpy = sinon.spy()
@@ -368,17 +347,15 @@ describe('server/lib/model', () => {
             accountId: account.id,
             name: 'Create Hooks',
           }
-          User.beforeCreate = (fields) => beforeSpy(fields)
+          User.beforeCreate = fields => beforeSpy(fields)
           User.afterCreate = (model, fields) => afterSpy(model, fields)
           const user = await User.create(fields)
           expect(beforeSpy).to.be.calledWith(fields)
           expect(afterSpy).to.be.calledWith(user, fields)
         })
-
       })
 
       context('update hooks', () => {
-
         it('should call before and after hooks when updating model', async () => {
           const beforeSpy = sinon.spy()
           const afterSpy = sinon.spy()
@@ -394,15 +371,13 @@ describe('server/lib/model', () => {
           expect(beforeSpy).to.be.calledWith(user, changes)
           expect(afterSpy).to.be.calledWith(updated, changes)
         })
-
       })
 
       context('destroy hooks', () => {
-
         it('should call before and after hooks when destroying model', async () => {
           const beforeSpy = sinon.spy()
           const afterSpy = sinon.spy()
-          User.beforeDestroy = (model) => beforeSpy(model)
+          User.beforeDestroy = model => beforeSpy(model)
           User.afterDestroy = () => afterSpy()
           const user = await User.create({
             accountId: account.id,
@@ -412,13 +387,10 @@ describe('server/lib/model', () => {
           expect(beforeSpy).to.be.calledWith(user)
           expect(afterSpy).to.be.called
         })
-
       })
-
     })
 
     context('._constructQuery()', () => {
-
       it('should convert field names to snake_case', () => {
         const query = User._constructQuery({
           where: { createdAt: { equals: 'value' } },
@@ -426,7 +398,7 @@ describe('server/lib/model', () => {
         })
         expect(query.toQuery()).to.deep.equal({
           text: 'SELECT "users".* FROM "users" WHERE ("users"."created_at" = $1) ORDER BY "users"."created_at" DESC',
-          values: [ 'value' ],
+          values: ['value'],
         })
       })
 
@@ -437,7 +409,9 @@ describe('server/lib/model', () => {
           })
           throw new Error('should not get here')
         } catch (err) {
-          expect(err.message).to.equal('No column "doesnt_exist" found in schema. Make sure "doesnt_exist" is defined in your list of columns in your configuration.')
+          expect(err.message).to.equal(
+            'No column "doesnt_exist" found in schema. Make sure "doesnt_exist" is defined in your list of columns in your configuration.'
+          )
         }
       })
 
@@ -448,11 +422,9 @@ describe('server/lib/model', () => {
       //xit('should support searching by an ID', () => {
 
       //})
-
     })
 
-    context('relations', () => {
-
+    context('references', () => {
       it('should expand relations if passed in', async () => {
         const user = await User.create({
           accountId: account.id,
@@ -474,28 +446,22 @@ describe('server/lib/model', () => {
         expect(users[0].account).to.deep.equal(account)
         expect(users[1].account).to.deep.equal(account)
       })
-
     })
-
   })
 
   context('instance methods', () => {
-
     it('should stringify name of model by default', () => {
       expect(String(new User({ name: 'John' }))).to.equal('User')
     })
 
     context('.className', () => {
-
       it('should return name of class', () => {
         const user = new User({ name: 'Fred' })
         expect(user.className).to.equal('User')
       })
-
     })
 
     context('.save()', () => {
-
       it('should create and return model', async () => {
         expect(await User.findMany()).to.have.length(0)
         const user = new User({
@@ -519,11 +485,9 @@ describe('server/lib/model', () => {
         expect(user.name).to.equal('Another Person')
         expect(fromDb[0].name).to.equal('Another Person')
       })
-
     })
 
     context('.destroy()', () => {
-
       it('should remove row from DB', async () => {
         const user = await User.create({
           accountId: account.id,
@@ -533,9 +497,6 @@ describe('server/lib/model', () => {
         const users = await User.findMany()
         expect(users).to.have.length(0)
       })
-
     })
-
   })
-
 })

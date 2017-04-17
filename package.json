@@ -7,8 +7,15 @@
     "test": "test"
   },
   "scripts": {
+    "format": "prettier --write $(cat prettier.opts) 'model*.js'",
     "test": "mocha '**/*.test.js'",
     "watch-test": "npm test -- --watch"
+  },
+  "lint-staged": {
+    "*.js": [
+      "npm run format",
+      "git add"
+    ]
   },
   "repository": {
     "type": "git",
@@ -34,6 +41,8 @@
   "homepage": "https://github.com/danawoodman/simple-sql-model#readme",
   "devDependencies": {
     "chai": "3.5.0",
+    "husky": "^0.13.3",
+    "lint-staged": "^3.4.0",
     "mocha": "3.2.0",
     "pg-promise": "5.6.4",
     "sinon": "2.1.0"
