@@ -9,6 +9,7 @@
   "scripts": {
     "format": "prettier --write $(cat prettier.opts) 'model*.js'",
     "test": "mocha '**/*.test.js'",
+    "precommit": "echo COMING SOON #lint-staged",
     "watch-test": "npm test -- --watch"
   },
   "lint-staged": {
