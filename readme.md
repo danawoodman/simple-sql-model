@@ -142,9 +142,13 @@ await user2.save()
 // Update rows
 //-------------------------------------------------------
 
-await user.save({ name: 'Johnny' })
-
 await User.update(user.id, { name: 'Johnny' })
+
+user.name = 'Johnny'
+await user.save()
+
+// or:
+await user.save({ name: 'Johnny' })
 
 
 //-------------------------------------------------------
@@ -391,11 +395,13 @@ Count up the number of matching records in the table. If an optional query is pa
 ### Instance Methods
 
 
-#### `model.save()`
+#### `model.save(fields)`
 
 Create or update the given model instance. If the model is persisted to the DB, we update it, otherwise we create a new row.
 
 - **Returns:** Promise for the updated model instance
+- **Arguments:**  
+  - `fields` (optional) - An `Object` of fields to update.
 
 
 #### `model.destroy()`
@@ -426,6 +432,10 @@ Please see the `prettier.opts` file for prettier confiuration. You should run `n
 
 
 ## Changelog
+
+### v0.9.0
+
+- Accept and object of properties in `model.save()` which will allow for direct updating without setting properties first.
 
 ### v0.8.1
 

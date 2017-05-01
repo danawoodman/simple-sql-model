@@ -131,14 +131,16 @@ module.exports = class Model {
    * persisted in the DB so we try to update it,
    * otherwise we create it.
    */
-  async save() {
+  async save(fields = {}) {
+    const data = Object.assign({}, this, fields)
+
     if (this.id) {
-      const existing = await this.constructor.update(this.id, this)
+      const existing = await this.constructor.update(this.id, data)
       this._updateFields(existing)
       return existing
     }
 
-    const created = await this.constructor.create(this)
+    const created = await this.constructor.create(data)
     this._updateFields(created)
     return created
   }

@@ -485,6 +485,17 @@ describe('server/lib/model', () => {
         expect(user.name).to.equal('Another Person')
         expect(fromDb[0].name).to.equal('Another Person')
       })
+
+      it('should allow passing in fields to change', async () => {
+        const user = await User.create({
+          accountId: account.id,
+          name: 'A Person',
+        })
+        await user.save({ name: 'Another Person' })
+        const fromDb = await User.findMany()
+        expect(user.name).to.equal('Another Person')
+        expect(fromDb[0].name).to.equal('Another Person')
+      })
     })
 
     context('.destroy()', () => {
