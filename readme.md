@@ -142,7 +142,7 @@ await user2.save()
 // Update rows
 //-------------------------------------------------------
 
-await user.update({ name: 'Johnny' })
+await user.save({ name: 'Johnny' })
 
 await User.update(user.id, { name: 'Johnny' })
 
