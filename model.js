@@ -189,7 +189,7 @@ module.exports = class Model {
       ? startingQuery
       : this.table.select(this.table.star())
 
-    this._debug('[_constructQuery] Query: ', query)
+    this._debug('[_constructQuery] Query: ', query.toQuery())
 
     // Filter results
     // See here for all possible values:
