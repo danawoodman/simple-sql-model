@@ -30,6 +30,8 @@ This provides a bunch of convenience methods to create simple DB models quickly 
 
 - [ ] Support `or`/`and` style queries
 - [ ] Add validation support
+- [ ] Add field transformats (`uppercase`, `lowercase`, etc)
+- [ ] Automatically create `updatedAt` and `createdAt`
 
 
 ## Installation
@@ -432,6 +434,10 @@ Please see the `prettier.opts` file for prettier confiuration. You should run `n
 
 
 ## Changelog
+
+### v0.9.1
+
+- Add more logging
 
 ### v0.9.0
 

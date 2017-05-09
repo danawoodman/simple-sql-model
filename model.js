@@ -74,7 +74,13 @@ module.exports = class Model {
 
   static async update(idOrQuery, fields) {
     fields = this._onlyColumnValues(fields)
+
+    this._debug('[update] Fields: ', fields)
+
     const changes = this._toDbFromModel(fields)
+
+    this._debug('[update] Changes: ', changes)
+
     const start = this.table.update(changes)
     const query = this._constructQuery(idOrQuery, start)
     query.returning()
@@ -93,9 +99,7 @@ module.exports = class Model {
   static async count(search = {}) {
     const startingQuery = this.table.select(this.table.count())
     const query = this._constructQuery(search, startingQuery)
-    const result = await this.connection.query(query.toQuery())
-    return Number(result[0][`${this.tableName}_count`])
-  }
+    const result = await this.connection.query(query.toQuery()) return Number(result[0][`${this.tableName}_count`]) }
 
   static async destroy(idOrQuery) {
     const startingQuery = this.table.delete()
@@ -183,6 +187,8 @@ module.exports = class Model {
       ? startingQuery
       : this.table.select(this.table.star())
 
+    this._debug('[_constructQuery] Query: ', query)
+
     // Filter results
     // See here for all possible values:
     // https://github.com/brianc/node-sql/blob/5ec7827cf637a4fe6b930fd4e8d27e6a8cb5289f/test/binary-clause-tests.js#L11
@@ -226,6 +232,8 @@ module.exports = class Model {
   }
 
   static _returnOne(query) {
+    this._debug('[_returnOne] Query: ', query)
+
     return this.connection.query(query.toQuery()).then(async result => {
       if (!result || !result[0]) return null
       const model = new this(result[0])
@@ -234,6 +242,8 @@ module.exports = class Model {
   }
 
   static _returnMany(query) {
+    this._debug('[_returnMany] Query: ', query)
+
     return this.connection.query(query.toQuery()).then(async result => {
       return await Promise.all(
         result.map(async row => {
