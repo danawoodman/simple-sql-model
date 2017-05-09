@@ -99,7 +99,9 @@ module.exports = class Model {
   static async count(search = {}) {
     const startingQuery = this.table.select(this.table.count())
     const query = this._constructQuery(search, startingQuery)
-    const result = await this.connection.query(query.toQuery()) return Number(result[0][`${this.tableName}_count`]) }
+    const result = await this.connection.query(query.toQuery())
+    return Number(result[0][`${this.tableName}_count`])
+  }
 
   static async destroy(idOrQuery) {
     const startingQuery = this.table.delete()

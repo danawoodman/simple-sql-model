@@ -435,6 +435,10 @@ Please see the `prettier.opts` file for prettier confiuration. You should run `n
 
 ## Changelog
 
+### v0.9.2
+
+- Fix bonehead typo... 🤦
+
 ### v0.9.1
 
 - Add more logging
