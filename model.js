@@ -234,7 +234,7 @@ module.exports = class Model {
   }
 
   static _returnOne(query) {
-    this._debug('[_returnOne] Query: ', query)
+    this._debug('[_returnOne] Query: ', query.toQuery())
 
     return this.connection.query(query.toQuery()).then(async result => {
       if (!result || !result[0]) return null
@@ -244,7 +244,7 @@ module.exports = class Model {
   }
 
   static _returnMany(query) {
-    this._debug('[_returnMany] Query: ', query)
+    this._debug('[_returnMany] Query: ', query.toQuery())
 
     return this.connection.query(query.toQuery()).then(async result => {
       return await Promise.all(

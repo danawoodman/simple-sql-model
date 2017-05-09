@@ -435,6 +435,10 @@ Please see the `prettier.opts` file for prettier confiuration. You should run `n
 
 ## Changelog
 
+### v0.9.4
+
+- More logs
+
 ### v0.9.3
 
 - More logs
